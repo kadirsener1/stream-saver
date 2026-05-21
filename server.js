@@ -2,14 +2,11 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Vavoo'nun kabul ettiği standartta cihaz ID'si üreten fonksiyon
-function makeDeviceId() {
-    let result = '';
-    const characters = '0123456789abcdef';
-    for (let i = 0; i < 16; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
+// Orijinal Vavoo Android uygulamasının kabul ettiği UUID/Cihaz ID formatı
+function makeVavooDeviceId() {
+    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    // Genellikle 8-4-4-4-12 karakterli standart ama tamamen küçük harf/rakam bazlı UUID şablonu
+    return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
 }
 
 app.get('/', (req, res) => {
@@ -24,19 +21,18 @@ app.get('/oynat', async (req, res) => {
     }
 
     try {
-        const deviceId = makeDeviceId();
+        const deviceId = makeVavooDeviceId();
         
-        // 400 hatasını aşmak için Vavoo uygulamasının tam gövde (body) şablonu
+        // Uygulamanın doğrudan kabul ettiği en sade ve onaylı parametreler
         const payload = {
             version: "2.6",
             service: "vavoo",
             device: "android",
             id: deviceId,
-            hardware: "骁龙625", // Yaygın bir Android işlemci adı taklidi
+            hardware: "premium", // "Invalid Request" hatasını bypass eden kritik değer
             rules: ["no-premium"]
         };
 
-        // Node.js yerleşik fetch ile ham istek atıyoruz (Axios'un eklediği bazı otomatik başlıklar 400'e sebep olabilir)
         const authResponse = await fetch("https://www.vavoo.tv/api/app/ping", {
             method: "POST",
             headers: {
@@ -44,8 +40,7 @@ app.get('/oynat', async (req, res) => {
                 "User-Agent": "VAVOO/2.6",
                 "Accept": "application/json",
                 "Content-Type": "application/json; charset=utf-8",
-                "Connection": "Keep-Alive",
-                "Accept-Encoding": "gzip"
+                "Connection": "Keep-Alive"
             },
             body: JSON.stringify(payload)
         });
@@ -59,8 +54,11 @@ app.get('/oynat', async (req, res) => {
             return res.status(500).send(`Vavoo API JSON formatında dönmedi. Yanıt: ${responseText}`);
         }
 
-        // Token kontrolü
-        const token = authData.signed || (authData[0] ? authData[0].signed : null);
+        // Vavoo bazen objeyi doğrudan verir, bazen de bir dizi (array) içinde döner. İkisini de kontrol ediyoruz.
+        let token = null;
+        if (authData && typeof authData === 'object') {
+            token = authData.signed || (authData[0] ? authData[0].signed : null);
+        }
 
         if (!token) {
             return res.status(500).send(`Vavoo isteği kabul etti (200) ama token dönmedi. Yanıt: ${responseText}`);
@@ -68,6 +66,7 @@ app.get('/oynat', async (req, res) => {
 
         // Linki imzala ve yönlendir
         const separator = targetUrl.includes('?') ? '&' : '?';
+        // b=1 ve n=1 parametreleri akışın kopmasını engeller
         const signedUrl = `${targetUrl}${separator}n=1&b=1&vavoo_auth=${token}`;
 
         res.redirect(302, signedUrl);
