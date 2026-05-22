@@ -2,6 +2,10 @@
 import requests
 from datetime import datetime
 import os
+import urllib3
+
+# SSL uyarılarını devre dışı bırak
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Ortam değişkenlerinden ayarları oku
 STREAM_URL = os.getenv("STREAM_URL", "http://127.0.0.1:6878/ace/getstream?id=9bc4c83abc04cb94a885e9de9a88aef98285d564&pid=7561")
@@ -10,7 +14,7 @@ TIMEOUT = int(os.getenv("TIMEOUT", "5"))
 
 def get_and_save_stream():
     try:
-        response = requests.get(STREAM_URL, timeout=TIMEOUT)
+        response = requests.get(STREAM_URL, timeout=TIMEOUT, verify=False)
         stream_link = response.text.strip()
         
         # m3u dosyasını başlat (ilk kez)
@@ -23,7 +27,7 @@ def get_and_save_stream():
             f.write(f"#EXTINF:-1, Stream ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})\n")
             f.write(f"{stream_link}\n")
         
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✓ Link kaydedildi: {stream_link}")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✓ Link kaydedildi: {stream_link[:100]}")
         
     except requests.exceptions.ConnectionError:
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✗ Sunucuya bağlanılamadı: {STREAM_URL}")
