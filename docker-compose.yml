@@ -4,7 +4,7 @@ services:
     container_name: stream-saver
     network_mode: host
     environment:
-      - STREAM_URL=https://qmaalhy7acgxwhm.ngolpdkyoctjcddxshli469r.org/sunshine/VBOfJR3SsQ1ZyJDsLjOihaogQm_lGs-5HhAR7FuOjtd_w8sfoL4Cfz-mFtqwHk5Sdx2FStgbWek2szQLzJ5pf_5aoeLcui9nVf6HgL57WFDMikFHds0ky2GJfUW8UeAAGY7znzCb12Q6QlQAWiSJ_IqCYA8ZXf6cy0rvVXskWubish6mNl50ovtD1N9rYRCiaVoCV7LP4WOdsEM_XIDqxV-JhJMrirRl3251wuRAtcmbvKnK59JMo6A7qT4rq2n3QwWnY66HQXpaL9-gax6mbQeRv3KoZ10KGewUJaPcQDo/hls/index.m3u8
+      - STREAM_URL=https://vavooproxy.magnitude.workers.dev/resolve?url=https://vavoo.to/vavoo-iptv/play/38229012391e140a7f75ba
       - OUTPUT_FILE=/data/streams.m3u
       - TIMEOUT=5
     volumes:
