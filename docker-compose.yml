@@ -6,6 +6,10 @@ services:
     environment:
       - STREAM_URL=https://vavooproxy.magnitude.workers.dev/resolve?url=https://vavoo.to/vavoo-iptv/play/38229012391e140a7f75ba
       - OUTPUT_FILE=/data/streams.m3u
+      - CHANNEL_NAME=beIN 1 HD
+      - CHANNEL_ID=beinsports1.tr
+      - CHANNEL_LOGO=https://raw.githubusercontent.com/kadirsener1/logolar/master/logos/bein1.png
+      - CHANNEL_GROUP=Spor
       - TIMEOUT=5
     volumes:
       - ./streams_data:/data

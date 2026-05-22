@@ -1,16 +1,3 @@
 #EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:13
-#EXT-X-MEDIA-SEQUENCE:388
-#EXTINF:12.160000,
-6a1020cd_388.ts
-#EXTINF:12.800000,
-6a1020cd_389.ts
-#EXTINF:11.840000,
-6a1020cd_390.ts
-#EXTINF:12.160000,
-6a1020cd_391.ts
-#EXTINF:11.840000,
-6a1020cd_392.ts
-#EXTINF:11.200000,
-6a1020cd_393.ts
+#EXTINF:-1 tvg-id="beinsports1.tr" tvg-logo="https://raw.githubusercontent.com/kadirsener1/logolar/master/logos/bein1.png" group-title="Spor",beIN 1 HD
+https://qmaalhy7acgxwhm.ngolpdkyoctjcddxshli469r.org/sunshine/U0b0vH4Pm7LMlaVp0R0XfgbwPDxDwsB1tBJ0BUnun0L-lX4NA40WHYTJQZ3QbXrzCI-EE1kRiR0vCuSmoUCQ7B_P36fxHPo5VwU7KMhAA7gmyFbUVGQ3v0tSL9SSsxQKfi4XRNJuOkcAUHjRubG4-ejtXmTudetZ-3ABqTjRrReDYJssb1-DKjhTi3FvM43dm_gLag8sxH8PqcskSPrSeuIkcnC2z4UeLByfg0_z8a9X_G-saIoxUSJy1G4ROn4tOKe4RAZmjc66qcYYjqKAUCFUWSqqgMbpt559P4eTi4M/hls/index.m3u8

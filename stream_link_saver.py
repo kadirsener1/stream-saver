@@ -11,6 +11,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Ortam değişkenlerinden ayarları oku
 STREAM_URL = os.getenv("STREAM_URL", "https://vavooproxy.magnitude.workers.dev/resolve?url=https://vavoo.to/vavoo-iptv/play/38229012391e140a7f75ba")
 OUTPUT_FILE = os.getenv("OUTPUT_FILE", "/data/streams.m3u")
+CHANNEL_NAME = os.getenv("CHANNEL_NAME", "Stream")
+CHANNEL_ID = os.getenv("CHANNEL_ID", "channel.1")
+CHANNEL_LOGO = os.getenv("CHANNEL_LOGO", "")
+CHANNEL_GROUP = os.getenv("CHANNEL_GROUP", "General")
 TIMEOUT = int(os.getenv("TIMEOUT", "5"))
 
 def extract_m3u8_url(response):
@@ -48,34 +52,29 @@ def get_and_save_stream():
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] → Proxy URL taranıyor...")
         response = requests.get(STREAM_URL, timeout=TIMEOUT, verify=False, allow_redirects=True)
         
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Response Status: {response.status_code}, URL: {response.url}")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Response Status: {response.status_code}")
         
         # Response'tan m3u8 URL'sini çıkar
         m3u8_url = extract_m3u8_url(response)
         
         if not m3u8_url:
             print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✗ m3u8 URL bulunamadı")
-            print(f"Response (first 500 chars): {response.text[:500]}")
             return
         
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✓ m3u8 URL bulundu: {m3u8_url[:100]}...")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✓ m3u8 URL bulundu")
         
-        # m3u8 URL'den playlist'i çek
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] → m3u8 playlist çekiliyor...")
-        m3u8_response = requests.get(m3u8_url, timeout=TIMEOUT, verify=False)
-        m3u8_content = m3u8_response.text.strip()
+        # m3u dosyasını oluştur (basit format)
+        logo_attr = f' tvg-logo="{CHANNEL_LOGO}"' if CHANNEL_LOGO else ''
+        extinf_line = f"#EXTINF:-1 tvg-id=\"{CHANNEL_ID}\"{logo_attr} group-title=\"{CHANNEL_GROUP}\",{CHANNEL_NAME}"
         
-        if not m3u8_content.startswith('#EXTM3U'):
-            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✗ m3u8 geçersiz format")
-            return
-        
-        # m3u dosyasına yaz
         with open(OUTPUT_FILE, "w") as f:
-            f.write(m3u8_content + "\n")
+            f.write("#EXTM3U\n")
+            f.write(f"{extinf_line}\n")
+            f.write(f"{m3u8_url}\n")
         
-        # İstatistik
-        segments = len(re.findall(r'\.ts\n', m3u8_content))
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✓ Playlist kaydedildi ({segments} segment)")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✓ M3U dosyası kaydedildi")
+        print(f"    Kanal: {CHANNEL_NAME}")
+        print(f"    URL: {m3u8_url[:80]}...")
         
     except requests.exceptions.ConnectionError as e:
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✗ Sunucuya bağlanılamadı: {e}")
