@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 import os
 import urllib3
+import re
 
 # SSL uyarılarını devre dışı bırak
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -15,19 +16,20 @@ TIMEOUT = int(os.getenv("TIMEOUT", "5"))
 def get_and_save_stream():
     try:
         response = requests.get(STREAM_URL, timeout=TIMEOUT, verify=False)
-        stream_link = response.text.strip()
+        playlist_content = response.text.strip()
         
         # m3u dosyasını başlat (ilk kez)
         if not os.path.exists(OUTPUT_FILE):
             with open(OUTPUT_FILE, "w") as f:
                 f.write("#EXTM3U\n")
         
-        # Linki m3u formatında kaydet
-        with open(OUTPUT_FILE, "a") as f:
-            f.write(f"#EXTINF:-1, Stream ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})\n")
-            f.write(f"{stream_link}\n")
+        # m3u8 playlist'ini direkt dosyaya yaz
+        with open(OUTPUT_FILE, "w") as f:
+            f.write(playlist_content + "\n")
         
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✓ Link kaydedildi: {stream_link[:100]}")
+        # Kaç tane segment olduğunu say
+        segments = len(re.findall(r'\.ts\n', playlist_content))
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✓ Playlist kaydedildi ({segments} segment)")
         
     except requests.exceptions.ConnectionError:
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ✗ Sunucuya bağlanılamadı: {STREAM_URL}")
