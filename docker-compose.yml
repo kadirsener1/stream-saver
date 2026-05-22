@@ -1,0 +1,17 @@
+services:
+  stream-saver:
+    build: .
+    container_name: stream-saver
+    network_mode: host
+    environment:
+      - STREAM_URL=http://127.0.0.1:6878/ace/getstream?id=9bc4c83abc04cb94a885e9de9a88aef98285d564&pid=7561
+      - OUTPUT_FILE=/data/streams.m3u
+      - TIMEOUT=5
+    volumes:
+      - ./streams_data:/data
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
